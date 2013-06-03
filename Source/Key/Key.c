@@ -33,7 +33,7 @@ typedef enum{KEY_OFF,KEY_EDGE,KEY_VERF} KEYSTATES;
 INT8U GetKey(INT8U *cntlFlag, INT16U *rawKey); /* Returns current value of KeyBuffer*/
 void KeyInit(void);             /* Keypad Initialization           */
 void KeyTask(void);             /* Main keypad read task           */
-const INT8U UBrailleLookup[256] = {0,',','!','\t',0,';',':',0x0A,
+const INT8U UBrailleLookup[256] = {0,',','!','\t',0,';',':','\n',
 									'.','\'',')',']',0,'"','?','0',
 							/*16*/	'a','d','c',0,'b',0,0,0,
 									'A','D','C',0,'B','@',0,'8',
@@ -61,7 +61,7 @@ const INT8U UBrailleLookup[256] = {0,',','!','\t',0,';',':',0x0A,
 									0,0,'$',0,0,0,0,'3',
 							/*208*/	'[',0,0,0,0,0,0,0,
 									0,0,0,0,0,0,0,'-',
-							/*224*/	0x08,'/','|',0,'\\',0,0,0,
+							/*224*/	'\b','/','|',0,'\\',0,0,0,
 									'_','&',0,0,0,0,0,'7',
 							/*240*/	0,0,0,0,0,0,0,0,
 							/*248*/	0,0,0,0,0,0,0,0};/*255*/

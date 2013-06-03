@@ -30,7 +30,7 @@ typedef enum {
 void CntlTask(void);
 
 /********************************************************************
- * Private Resources
+ * TODO Private Resources
  ********************************************************************/
 static CNTLSTATES progState;
 static NOTESTATES noteState;
@@ -50,11 +50,17 @@ static FILETABLESTRUCT tmpFile;	//	RAM copy of current filetable
 static FILESTRUCT tmpFileData;
 static INT32U tmpFIndex;
 
-const INT8U learnString[] =
+static const INT8U learnString[] =
 		"the quick brown fox jumped over the lazy brown dog. THE QUICK BROWN FOX JUMPED OVER THE LAZY BROWN DOG!";
 
+static void MenuState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+static void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+static void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+static void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+static void ChatState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+
 /********************************************************************
- * InitTmpVars() - Initialization routine for between states.
+ * TODO InitTmpVars() - Initialization routine for between states.
  ********************************************************************/
 void InitTmpVars(void) {
 
@@ -69,7 +75,7 @@ void InitTmpVars(void) {
 }
 
 /********************************************************************
- * FindNextFile() - returns true if success, false if no files exist.
+ * TODO FindNextFile() - returns true if success, false if no files exist.
  * 					next = TRUE, look forward. next = FALSE, look back.
  ********************************************************************/
 INT8U FindNextFile(FILETABLESTRUCT *current, INT8U next, FILESTATES fStates) {
@@ -117,7 +123,7 @@ INT8U FindNextFile(FILETABLESTRUCT *current, INT8U next, FILESTATES fStates) {
 }
 
 /********************************************************************
- * GetNextFile() - returns pointer to next unused file table or null
+ * TODO GetNextFile() - returns pointer to next unused file table or null
  * 					if they are all full.
  ********************************************************************/
 FILETABLESTRUCT GetNextFile(INT8U *err) {
@@ -135,7 +141,7 @@ FILETABLESTRUCT GetNextFile(INT8U *err) {
 }
 
 /********************************************************************
- * CntlInit() - Initialization routine for the control module.
+ * TODO CntlInit() - Initialization routine for the control module.
  ********************************************************************/
 void CntlInit(void) {
 	/*	Initialize resources	*/
@@ -180,399 +186,463 @@ void CntlTask(void) {
 	/*		Menu State			*/	//TODO Menu State
 	default:
 	case MENU:
-		switch (key) {
-		case 'n':
-		case 'N':
-			progState = NOTES;
-			noteState = nSELECT;
-			UARTSend("\r\nNotes", (INT32U) 7);
-			DisplayUpdate("Notes");
-			InitTmpVars();
-			break;
-		case 'r':
-		case 'R':
-			progState = READ;
-			readState = rSELECT;
-			UARTSend("\r\nRead", (INT32U) 6);
-			DisplayUpdate("Read");
-			InitTmpVars();
-			break;
-		case 'l':
-		case 'L':
-			progState = LEARN;
-			UARTSend("\r\nLearn", (INT32U) 7);
-			DisplayUpdate("Learn");
-			InitTmpVars();
-			break;
-		case 'c':
-		case 'C':
-			progState = CHAT;
-			UARTSend("\r\nChat", (INT32U) 6);
-			DisplayUpdate("Chat");
-			InitTmpVars();
-			break;
-		default:
-			//	Display Menu Message
-			/*	"N: Notes?
-			 * 	 R: Read?
-			 * 	 L: Learn?
-			 * 	 C: Chat?	"
-			 */
-			if ((!bMenuDisplayed) || (sliceCnt > ONEMINUTE)) {
-				switch (sliceCnt) {
-				case 0:
-					UARTSend("Main Menu\r\n", (INT32U) 11);
-					DisplayUpdate("Menu");
-					break;
-				case 1:
-					UARTSend("[N]otes     ", (INT32U) 12);
-					break;
-				case 2:
-					UARTSend("[R]ead     ", (INT32U) 11);
-					break;
-				case 3:
-					UARTSend("[L]earn     ", (INT32U) 12);
-					break;
-				case 4:
-					UARTSend("[C]hat\r\n", (INT32U) 8);
-					break;
-				case ONESECOND:
-					DisplayUpdate("[N]otes");
-					break;
-				case TWOSECONDS:
-					DisplayUpdate("[R]ead");
-					break;
-				case THREESECONDS:
-					DisplayUpdate("[L]earn");
-					break;
-				case FOURSECONDS:
-					DisplayUpdate("[C]hat");
-					break;
-				case FIVESECONDS:
-					DisplayClear();
-					break;
-				default:
-					if (sliceCnt > SIXSECONDS) {
-						sliceCnt = 0;
-						bMenuDisplayed = TRUE;
-					} else {
-					}
-					break;
-				}
-			} else {
-			}
-			break;
-		}
+		MenuState(key, cntlFlag, error, rawKey);
 		break;
-		/*	*	*	*	*	*	*	*/
 		/*		Note State			*/	//TODO Notes State
 	case NOTES:
-		/*	Allow message time to settle	*/
-		if (sliceCnt > ONESECOND) {
-			switch (noteState) {
+		NotesState(key, cntlFlag, error, rawKey);
+		break;
+		/*		Read State			*/	//TODO Read state
+	case READ:
+		ReadState(key, cntlFlag, error, rawKey);
+		break;
+		/*		Learn State			*/	//TODO Learn state
+	case LEARN:
+		LearnState(key, cntlFlag, error, rawKey);
+		break;
+		/*		Chat State			*/	//TODO Chat state
+	case CHAT:
+		ChatState(key, cntlFlag, error, rawKey);
+		break;
+	}
+	sliceCnt++;
+}
+
+/********************************************************************
+ * TODO MenuState() - function called during menu state.
+ ********************************************************************/
+void MenuState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
+
+	switch (key) {
+	case 'n':
+	case 'N':
+		progState = NOTES;
+		noteState = nSELECT;
+		UARTSend("\r\nNotes", (INT32U) 7);
+		DisplayUpdate("Notes");
+		InitTmpVars();
+		break;
+	case 'r':
+	case 'R':
+		progState = READ;
+		readState = rSELECT;
+		UARTSend("\r\nRead", (INT32U) 6);
+		DisplayUpdate("Read");
+		InitTmpVars();
+		break;
+	case 'l':
+	case 'L':
+		progState = LEARN;
+		UARTSend("\r\nLearn", (INT32U) 7);
+		DisplayUpdate("Learn");
+		InitTmpVars();
+		break;
+	case 'c':
+	case 'C':
+		progState = CHAT;
+		UARTSend("\r\nChat", (INT32U) 6);
+		DisplayUpdate("Chat");
+		InitTmpVars();
+		break;
+	default:
+		//	Display Menu Message
+		/*	"N: Notes?
+		 * 	 R: Read?
+		 * 	 L: Learn?
+		 * 	 C: Chat?	"
+		 */
+		if (bMenuDisplayed == FALSE) {
+			switch (sliceCnt) {
+			case 0:
+				UARTSend("Main Menu\r\n", (INT32U) 11);
+				DisplayUpdate("Menu");
+				break;
+			case ONESECOND:
+				UARTSend("[N]otes     ", (INT32U) 12);
+				DisplayUpdate("[N]otes");
+				break;
+			case TWOSECONDS:
+				UARTSend("[R]ead     ", (INT32U) 11);
+				DisplayUpdate("[R]ead");
+				break;
+			case THREESECONDS:
+				UARTSend("[L]earn     ", (INT32U) 12);
+				DisplayUpdate("[L]earn");
+				break;
+			case FOURSECONDS:
+				UARTSend("[C]hat\r\n", (INT32U) 8);
+				DisplayUpdate("[C]hat");
+				bMenuDisplayed = TRUE;
+				break;
 			default:
-			case nSELECT:
-				switch (key) {
-				case 'n':
-				case 'N':
-					noteState = nNEW;
-					break;
-				case 'o':
-				case 'O':
-					noteState = nOLD;
-					break;
-				default:
-					if (cntlFlag && (key == 'M')) {
-						progState = MENU;
-						InitTmpVars();
+				break;
+			}
+		} else {
+			if (sliceCnt >= ONEMINUTE) {
+				sliceCnt = 0;
+				bMenuDisplayed = FALSE;
+			} else {
+			}
+		}
+		break;
+	}
+}
+
+/********************************************************************
+ * TODO NotesState() - function called during menu state.
+ ********************************************************************/
+void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
+
+	static INT8U waitFlag = FALSE;
+
+	/*	Allow message time to settle	*/
+	if ((sliceCnt >= ONESECOND)&& (waitFlag == FALSE)){
+	waitFlag = TRUE;
+	sliceCnt = 0;
+} else {}
+
+	if (waitFlag) {
+		switch (noteState) {
+		default:
+		case nSELECT:
+			switch (key) {
+			case 'n':
+			case 'N':
+				noteState = nNEW;
+				InitTmpVars();
+				break;
+			case 'o':
+			case 'O':
+				noteState = nOLD;
+				InitTmpVars();
+				break;
+			default:
+				if ((cntlFlag == TRUE) && (key == 'M')) {
+					progState = MENU;
+					InitTmpVars();
+				} else {
+					//	Display
+					/*	"N: New?
+					 *   O: Old?	"
+					 */
+					if (bMenuDisplayed == FALSE) {
+						switch (sliceCnt) {
+						case 1:
+							UARTSend("\r\n[N]ew", (INT32U) 7);
+							DisplayUpdate("[N]ew");
+							break;
+						case TWOSECONDS:
+							UARTSend("\r\n[O]ld", (INT32U) 7);
+							DisplayUpdate("[O]ld");
+							bMenuDisplayed = TRUE;
+							break;
+						default:
+							break;
+						}
 					} else {
-						//	Display
-						/*	"N: New?
-						 *   O: Old?	"
-						 */
-						if ((!bMenuDisplayed) || (sliceCnt > ONEMINUTE)) {
-							switch (sliceCnt) {
-							case 0:
-								UARTSend("\r\n[N]ew", (INT32U) 7);
-								DisplayUpdate("[N]ew");
-								break;
-							case 1:
-								UARTSend("\r\n[O]ld", (INT32U) 7);
-								break;
-							case TWOSECONDS:
-								DisplayUpdate("[O]ld");
-								break;
-							case FOURSECONDS:
-								DisplayClear();
-								break;
-							default:
-								if (sliceCnt > FOURSECONDS) {
-									sliceCnt = 0;
-									bMenuDisplayed = FALSE;
-								} else {
-								}
-							}
+						if (sliceCnt >= ONEMINUTE) {
+							sliceCnt = 0;
+							bMenuDisplayed = FALSE;
 						} else {
 						}
 					}
 				}
 				break;
-			case nNEW:
-				if (!cntlFlag && (key != 'M')) {
-					//	get note file name (slice counting)
-					// 	when LF received, noteState = NOTES
-					//	Ignore keys until menu displayed for user
-					if ((!bMenuDisplayed) || (sliceCnt > ONEMINUTE)) {
-						switch (sliceCnt) {
-						case 0:
-							UARTSend("\r\nName: ", (INT32U) 8);
-							DisplayUpdate("Name: ");
-							/*	Get current file pointer	*/
-							tmpFile = GetNextFile(&error);
-							if (error == TRUE) {
-								/*	Error, memory full	*/
-								progState = MENU;
-								InitTmpVars();
-							} else {
-								tmpFile.state = fNOTES;
-							}
-							break;
-						case ONESECOND:
-							bMenuDisplayed = TRUE;
-							break;
-						default:
-							if (sliceCnt > ONESECOND) {
-								sliceCnt = 0;
-								bMenuDisplayed = FALSE;
-							} else {
-							}
-						}
-					} else {
-						/*	Menu has been displayed, looking for keys now	*/
-						/*	by state mutex, we can use for tmpFIndex as our
-						 *  index for the name field in the filetable entry.
-						 */
-						switch (key) {
-						default:
-							if (key == 0) {
-								break;
-							} else {
-								tmpFile.name[tmpFIndex++] = key;
-								if (tmpFIndex < BUFFERLEN) {
-									break;
-								} else {
-								}					//	fall through
-							}
-						case '\r':
-						case '\n':
-							//	got name, moving on into NOTES mode
-							if (tmpFIndex != 0) {
-								tmpFIndex = 0;
-								noteState = nNOTES;
-							} else {
-							}
-							break;
-						}
-					}
-				} else {
-					noteState = nSELECT;
-				}
-				break;
-			case nOLD:
-				if (cntlFlag) {
-					switch (key) {
-					case 'M':
-						noteState = nSELECT;
-						break;
-					case '<':
-							error = FindNextFile(&tmpFile, BACK, fNOTES);
-						break;
-					case '>':
-							error = FindNextFile(&tmpFile, FORWARD, fNOTES);
-						break;
-					}
-					if (error == TRUE) {
-						//	no old notes go back to select
-						UARTSend("\r\nNo Old Notes", (INT32U) 14);
-						DisplayUpdate("No Notes");
-						noteState = nSELECT;
-						break;
-					} else {
-						UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
-						DisplayUpdate(tmpFile.name);
-					}
-				} else if ((key == ' ') || (key == '\r') || (key == '\n')) {
-					if (tmpFile.state != fUNUSED) {
-						noteState = nNOTES;
-					} else {
-					}
-				} else {
-				}
-				break;
-			case nNOTES:
-				if (!cntlFlag && (key != 'M') && (tmpFIndex < FILEBLOCKSIZE)) {
-					if (!cntlFlag) {	// ignore Nav keys
-						tmpFileData[tmpFIndex++] = key;
-						DisplayAppendChar(key);
-					} else {
-					}
-				} else {
-					//	Save this note
-					fileLookupTable[tmpFile.tableIndex] = tmpFile;
-					(void) FileUpdate(&fileLookupTable[tmpFile.tableIndex],
-							(FILESTRUCT *) tmpFileData);
-					progState = MENU;
-					InitTmpVars();
-				}
-				break;
 			}
 			break;
-		} else {
-		}
-		/*	*	*	*	*	*	*	*/
-		/*		Read State			*/	//TODO Read state
-	case READ:
-		if (sliceCnt > ONESECOND) {
-			switch (readState) {
-			default:
-			case rSELECT:
-				if (cntlFlag) {
-					switch (key) {
-					case 'M':
+		case nNEW:
+			if (!((cntlFlag == TRUE) && (key == 'M'))) {
+				//	get note file name (slice counting)
+				// 	when LF received, noteState = NOTES
+				//	Ignore keys until menu displayed for user
+				if (bMenuDisplayed == FALSE) {
+					UARTSend("\r\nName: ", (INT32U) 8);
+					DisplayUpdate("Name: ");
+					/*	Get current file pointer	*/
+					tmpFile = GetNextFile(&error);
+					if (error == TRUE) {
+						/*	Error, memory full	*/
 						progState = MENU;
 						InitTmpVars();
+					} else {
+						tmpFile.state = fNOTES;
+					}
+					bMenuDisplayed = TRUE;
+				} else {
+					/*	Menu has been displayed, looking for keys now	*/
+					/*	by state mutex, we can use for tmpFIndex as our
+					 *  index for the name field in the filetable entry.
+					 */
+					switch (key) {
+					default:
+						if (key == 0x00) {
+							break;
+						} else {
+							tmpFile.name[tmpFIndex++] = key;
+							if (tmpFIndex < BUFFERLEN) {
+								break;
+							} else {
+							}	//	fall through
+						}
+					case '\r':
+					case '\n':
+						//	got name, moving on into NOTES mode
+						if (tmpFIndex != 0) {
+							tmpFIndex = 0;
+							noteState = nNOTES;
+						} else {
+						}
 						break;
-					case '<':	// can read any type of file.
-							error = FindNextFile(&tmpFile, BACK, (FILESTATES)(fNOTES|fLEARN|fREAD));
-						break;
-					case '>':
-							error = FindNextFile(&tmpFile, FORWARD, (FILESTATES)(fNOTES|fLEARN|fREAD));
-						break;
+					}
+				}
+			} else {
+				noteState = nSELECT;
+				InitTmpVars();
+			}
+			break;
+		case nOLD:
+			if (cntlFlag == TRUE) {
+				error = FALSE;
+				switch (key) {
+				case 'M':
+					noteState = nSELECT;
+					InitTmpVars();
+					break;
+				case '<':
+					error = FindNextFile(&tmpFile, BACK, fNOTES);
+					break;
+				case '>':
+					error = FindNextFile(&tmpFile, FORWARD, fNOTES);
+					break;
+				}
+				if (error == TRUE) {
+					//	no old notes go back to select
+					UARTSend("\r\nNo Old Notes", (INT32U) 14);
+					DisplayUpdate("None");
+					noteState = nSELECT;
+					InitTmpVars();
+				} else {
+					UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
+					DisplayUpdate(tmpFile.name);
+				}
+			} else if ((key == ' ') || (key == '\r') || (key == '\n')) {
+				if (tmpFile.state != fUNUSED) {
+					noteState = nNOTES;
+				} else {
+				}
+			} else {
+			}
+			break;
+		case nNOTES:
+			if (!(cntlFlag == TRUE && (key == 'M'))
+					&& (tmpFIndex < FILEBLOCKSIZE)) {
+				if (!cntlFlag && key != 0x00) {	// key is valid and not Nav
+					if (key == '\b') {
+						tmpFileData[tmpFIndex--] = 0x00;
+					} else {
+						tmpFileData[tmpFIndex++] = key;
+						DisplayAppendChar(key);
+					}
+				} else {
+				}
+			} else {
+				//	Save this note
+				fileLookupTable[tmpFile.tableIndex] = tmpFile;
+				(void) FileUpdate(&fileLookupTable[tmpFile.tableIndex],
+						(FILESTRUCT *) tmpFileData);
+				progState = MENU;
+				InitTmpVars();
+			}
+			break;
+		}
+	} else {
+	}
+}
+
+/********************************************************************
+ * TODO ReadState() - function called during menu state.
+ ********************************************************************/
+void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
+
+	static INT8U waitFlag = FALSE;
+
+	/*	Allow message time to settle	*/
+	if ((sliceCnt >= ONESECOND)&& (waitFlag == FALSE)){
+	waitFlag = TRUE;
+	sliceCnt = 0;
+} else {}
+
+	if (waitFlag) {
+		switch (readState) {
+		default:
+		case rSELECT:
+			if (cntlFlag == TRUE) {
+				if (key == 'M') {
+					progState = MENU;
+					InitTmpVars();
+				} else {
+					if (key == '<') {	// can read any type of file.
+						error = FindNextFile(&tmpFile, BACK,
+								(FILESTATES) (fNOTES | fLEARN | fREAD));
+					} else {
+						error = FindNextFile(&tmpFile, FORWARD,
+								(FILESTATES) (fNOTES | fLEARN | fREAD));
 					}
 					if (error == TRUE) {
 						//	no old notes go back to select
 						UARTSend("\r\nNo Old Docs", (INT32U) 14);
 						DisplayUpdate("No Docs");
 						readState = rSELECT;
+						InitTmpVars();
 						break;
 					} else {
-						UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
-						DisplayUpdate(tmpFile.name);
-					}
-				} else {
-					switch (key) {
-					case '\r':
-					case '\n':
-					case ' ':
-						if (tmpFile.state != fUNUSED) {
-							readState = rREAD;
-						} else {
-						}
-					}
-				}
-				break;
-			case rREAD:
-				if (!cntlFlag && (key != 'M')) {
-					if (cntlFlag && (key == '<')) {
-						if (tmpFIndex < DISPLAYLEN) {
-							/*	ignore	*/
-						} else {
-							tmpFIndex -= DISPLAYLEN;
-						}
-					} else if (cntlFlag && (key == '>')) {
-						if (tmpFIndex > FILEBLOCKSIZE - DISPLAYLEN) {
-							/*	ignore	*/
-						} else {
-							tmpFIndex += DISPLAYLEN;
-						}
-					}
-					DisplayUpdate((INT8U *) (tmpFile.ptr + tmpFIndex));
-				} else {
-					readState = rSELECT;
-				}
-				break;
-			}
-			break;
-		} else {
-		}
-		/*	*	*	*	*	*	*	*/
-		/*		Learn State			*/	//TODO Learn state
-	case LEARN:
-		if (sliceCnt > ONESECOND) {
-			if (!cntlFlag && (key != 'M')) {
-				if (key != learnString[tmpFIndex]) {
-					DisplayBlinkMiss();
-				} else {
-					tmpFIndex++;
-					if (learnString[tmpFIndex] == 0x00) {
-						progState = MENU;
-						InitTmpVars();
-					} else {
-						//	Shifted display to show next char as first
-					}
-				}
-			} else {
-				progState = MENU;
-				InitTmpVars();
-			}
-		} else {
-		}
-		UARTSend("\r\n", (INT32U) 2);
-		UARTSend(learnString + tmpFIndex, (INT32U) DISPLAYLEN);
-		DisplayUpdate((INT8U *) (learnString + tmpFIndex));
-		break;
-		/*	*	*	*	*	*	*	*/
-		/*		Chat State			*/	//TODO Chat state
-	case CHAT:
-		if (!cntlFlag && (key != 'M')) {
-			/*	Get Chat message	*/
-			UARTGetBuffer(chatRxBuffer);
-			if (chatRxBuffer[chatRxIndex] != 0x00) {
-				//	New Message
-				chatRxIndex = 0;
-				DisplayUpdate(chatRxBuffer);
-			} else {
-			}
 
-			/*	Send user key	*/
-			if (!cntlFlag || key == ' ') {
-				//UARTSendChar(key);
+					}
+				}
+			} else {
 				switch (key) {
 				case '\r':
 				case '\n':
-					UARTSend(chatTxBuffer, (INT32U) chatTxIndex);
-					chatTxIndex = 0;
+				case ' ':
+					if (tmpFile.state != fUNUSED) {
+						readState = rREAD;
+					} else {
+					}
 					break;
 				default:
-					chatTxBuffer[chatTxIndex++] = key;
-					if (chatTxIndex == UARTBUFFERSIZE) {
-						UARTSend(chatTxBuffer, (INT32U) chatTxIndex);
-						chatTxIndex = 0;
+					UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
+					DisplayUpdate(tmpFile.name);
+				}
+			}
+			break;
+		case rREAD:
+			if ((cntlFlag == FALSE) && (key != 'M')) {
+				if ((cntlFlag == TRUE) && (key == '<')) {
+					if (tmpFIndex < DISPLAYLEN) {
+						/*	ignore	*/
 					} else {
+						tmpFIndex -= DISPLAYLEN;
+					}
+				} else if ((cntlFlag == TRUE) && (key == '>')) {
+					if (tmpFIndex > FILEBLOCKSIZE - DISPLAYLEN) {
+						/*	ignore	*/
+					} else {
+						tmpFIndex += DISPLAYLEN;
 					}
 				}
+				DisplayUpdate((INT8U *) (tmpFile.ptr + tmpFIndex));
 			} else {
-				switch (key) {
-				case '<':
-					if (chatRxIndex > DISPLAYLEN) {
-						chatRxIndex -= DISPLAYLEN;
+				readState = rSELECT;
+				InitTmpVars();
+			}
+			break;
+		}
+	} else {
+	}
+}
+
+/********************************************************************
+ * TODO LearnState() - function called during menu state.
+ ********************************************************************/
+void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
+
+	static INT8U waitFlag = FALSE;
+	static INT8U fMissed = FALSE;
+
+	/*	Allow message time to settle	*/
+	if ((sliceCnt >= ONESECOND)&& (waitFlag == FALSE)){
+	waitFlag = TRUE;
+	sliceCnt = 0;
+} else {}
+
+	if (waitFlag) {
+		if (!((cntlFlag == TRUE) && (key == 'M'))) {
+			if (key != learnString[tmpFIndex]) {
+				if (sliceCnt & 0x0A) {
+					if (fMissed == TRUE) {
+						fMissed = FALSE;
+						UARTSend("\r ", (INT32U) 1);
+						UARTSend(learnString + tmpFIndex + 1,
+								(INT32U) DISPLAYLEN - 1);
+						DisplayBlinkMiss();
 					} else {
+						fMissed = TRUE;
+						UARTSend("\r\n", (INT32U) 2);
+						UARTSend(learnString + tmpFIndex, (INT32U) DISPLAYLEN);
+						DisplayUpdate((INT8U *) (learnString + tmpFIndex));
 					}
-					break;
-				case '>':
-					if (chatRxIndex < UARTBUFFERSIZE - DISPLAYLEN) {
-						chatRxIndex += DISPLAYLEN;
-					} else {
-					}
+				} else {
+				}
+			} else {
+				tmpFIndex++;
+				if (learnString[tmpFIndex] == 0x00) {
+					progState = MENU;
+					InitTmpVars();
+				} else {
+					//	Shifted display to show next char as first
+					UARTSend("\r\n", (INT32U) 2);
+					UARTSend(learnString + tmpFIndex, (INT32U) DISPLAYLEN);
+					DisplayUpdate((INT8U *) (learnString + tmpFIndex));
 				}
 			}
 		} else {
 			progState = MENU;
 			InitTmpVars();
 		}
-		break;
-		/*	*	*	*	*	*	*	*/
+	} else {
 	}
-	sliceCnt++;
+}
+
+/********************************************************************
+ * TODO ChatState() - function called during menu state.
+ ********************************************************************/
+void ChatState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
+
+	if ((cntlFlag == FALSE) && (key != 'M')) {
+		/*	Get Chat message	*/
+		UARTGetBuffer(chatRxBuffer);
+		if (chatRxBuffer[chatRxIndex] != 0x00) {
+			//	New Message
+			chatRxIndex = 0;
+			DisplayUpdate(chatRxBuffer);
+		} else {
+		}
+
+		/*	Send user key	*/
+		if (!cntlFlag || key == ' ') {
+			//UARTSendChar(key);
+			switch (key) {
+			case '\r':
+			case '\n':
+				UARTSend(chatTxBuffer, (INT32U) chatTxIndex);
+				chatTxIndex = 0;
+				break;
+			default:
+				chatTxBuffer[chatTxIndex++] = key;
+				if (chatTxIndex == UARTBUFFERSIZE) {
+					UARTSend(chatTxBuffer, (INT32U) chatTxIndex);
+					chatTxIndex = 0;
+				} else {
+				}
+			}
+		} else {
+			switch (key) {
+			case '<':
+				if (chatRxIndex > DISPLAYLEN) {
+					chatRxIndex -= DISPLAYLEN;
+				} else {
+				}
+				break;
+			case '>':
+				if (chatRxIndex < UARTBUFFERSIZE - DISPLAYLEN) {
+					chatRxIndex += DISPLAYLEN;
+				} else {
+				}
+			}
+		}
+	} else {
+		progState = MENU;
+		InitTmpVars();
+	}
 }
 /********************************************************************/

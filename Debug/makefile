@@ -16,8 +16,8 @@ $(GEN_CMDS__FLAG) \
 "./Source/UART/UART.obj" \
 "./startup_ccs.obj" \
 "./main.obj" \
--l"libc.a" \
 -l"E:/StellarisWare/boards/ek-lm4f120xl/uart_echo/ccs/../../../../driverlib/ccs-cm4f/Debug/driverlib-cm4f.lib" \
+-l"libc.a" \
 "../Braillearn_ccs.cmd" \
 
 -include ../makefile.init
@@ -135,7 +135,7 @@ all: Braillearn.out
 Braillearn.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"E:/ti/ccsv5/tools/compiler/arm_5.0.1/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O2 -g --gcc --define=ccs="ccs" --define=PART_LM4F120H5QR --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 --display_error_number --gen_func_subsections=on --ual -z --stack_size=256 -m"Braillearn.map" --heap_size=0 -i"E:/ti/ccsv5/tools/compiler/arm_5.0.1/lib" -i"E:/ti/ccsv5/tools/compiler/arm_5.0.1/include" --reread_libs --warn_sections --display_error_number --rom_model -o "Braillearn.out" $(ORDERED_OBJS)
+	"E:/ti/ccsv5/tools/compiler/arm_5.0.1/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O2 -g --gcc --define=ccs="ccs" --define=PART_LM4F120H5QR --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 --display_error_number --gen_func_subsections=on --ual -z --stack_size=1024 -m"Braillearn.map" --heap_size=0 -i"E:/ti/ccsv5/tools/compiler/arm_5.0.1/lib" -i"E:/ti/ccsv5/tools/compiler/arm_5.0.1/include" --reread_libs --warn_sections --display_error_number --rom_model -o "Braillearn.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

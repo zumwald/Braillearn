@@ -174,6 +174,8 @@ void UARTInit(void) {
 	UARTFIFOEnable(UART0_BASE);
 	UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX4_8, UART_FIFO_RX4_8);
 
+	UARTEnable(UART0_BASE);
+
 	// Enable the UART interrupt.
 	IntEnable(INT_UART0);
 	UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);

@@ -84,8 +84,8 @@ typedef signed long     INT32S;
 #define FILEBLOCKSIZE 	1024
 
 /*		KEY			*/
-#define KEY_SPACE 	0x00008000
-#define KEY_LEFT  	0x00002000
+#define KEY_SPACE 	0x00002000	// swapped with '<' for demo board 130603
+#define KEY_LEFT  	0x00008000	// swapped with ' ' for demo board 130603
 #define KEY_RIGHT 	0x00004000
 #define KEYBITS		0xFF
 #define NAVBITS		(BIT5|BIT6|BIT7)

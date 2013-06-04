@@ -55,8 +55,8 @@ void SPIInit(void) {
 	UARTEnable(UART7_BASE);
 
 	/*	Enable FIFOs	*/
-	//UARTFIFOEnable(UART7_BASE);
-	//UARTFIFOLevelSet(UART7_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
+	UARTFIFOEnable(UART7_BASE);
+	UARTFIFOLevelSet(UART7_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
 	// Enable the UART interrupt.
 	//IntEnable(INT_UART7);
 	//UARTIntEnable(UART7_BASE, UART_INT_RX | UART_INT_RT);
@@ -97,7 +97,7 @@ INT8U SPISendLine(INT8U *data) {
 
 	INT8U i, result;
 
-	for (i = 0; i < DISPLAYLEN; i++) {
+ 	for (i = 0; i < DISPLAYLEN; i++) {
 
 		if (*data == 0x00) {
 			return (INT8U) TRUE;

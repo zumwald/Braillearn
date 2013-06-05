@@ -54,6 +54,7 @@ INT8U FileUpdate(FILETABLESTRUCT *fileTblStruct, FILESTRUCT *data){
 
 		switch (fpRet){
 		case 0:
+		case 1:
 			//	Success!
 			retval = TRUE;
 			break;

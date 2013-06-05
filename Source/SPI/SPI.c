@@ -109,7 +109,7 @@ INT8U SPISendLine(INT8U *data, INT8U len) {
 		}
 	}
 	while (ROM_UARTCharsAvail (UART7_BASE)) {
-		if (data == ROM_UARTCharGetNonBlocking (UART7_BASE)) {
+		if (*data == (INT8U)ROM_UARTCharGetNonBlocking (UART7_BASE)) {
 			result |= TRUE;
 		} else {
 			result &= ~TRUE;

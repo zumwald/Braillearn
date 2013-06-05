@@ -58,18 +58,20 @@ static void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
 static void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
 static void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
 static void ChatState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey);
+static FILETABLESTRUCT GetNextFile(INT8U *err);
 
 /********************************************************************
  * TODO InitTmpVars() - Initialization routine for between states.
  ********************************************************************/
 void InitTmpVars(void) {
+	//INT8U error;
 
 	sliceCnt = 0;
 	bMenuDisplayed = FALSE;
 	//displayIndex = 0;
 	chatRxIndex = 0;
 	chatTxIndex = 0;
-	tmpFile = fileLookupTable[0];
+	//tmpFile = GetNextFile(&error);
 	tmpFIndex = 0;
 }
 
@@ -406,13 +408,13 @@ void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 					InitTmpVars();
 					break;
 				case '<':
-					error = FindNextFile(&tmpFile, BACK, fNOTES);
+					error = FindNextFile(&tmpFile, BACK, fNOTES);	// TRUE == Success
 					break;
 				case '>':
 					error = FindNextFile(&tmpFile, FORWARD, fNOTES);
 					break;
 				}
-				if (error == TRUE) {
+				if (error == FALSE) {
 					//	no old notes go back to select
 					UARTSend("\r\nNo Old Notes", (INT32U) 14);
 					DisplayUpdate("None");
@@ -433,7 +435,7 @@ void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 		case nNOTES:
 			if (!(cntlFlag == TRUE && (key == 'M'))
 					&& (tmpFIndex < FILEBLOCKSIZE)) {
-				if (!cntlFlag && key != 0x00) {	// key is valid and not Nav
+				if (!cntlFlag && key != 0x00 || key == ' ') {// key is valid and not Nav
 					if (key == '\b') {
 						tmpFileData[tmpFIndex--] = 0x00;
 					} else {
@@ -485,7 +487,7 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 						error = FindNextFile(&tmpFile, FORWARD,
 								(FILESTATES) (fNOTES | fLEARN | fREAD));
 					}
-					if (error == TRUE) {
+					if (error == FALSE) {
 						//	no old notes go back to select
 						UARTSend("\r\nNo Old Docs", (INT32U) 14);
 						DisplayUpdate("No Docs");
@@ -493,7 +495,6 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 						InitTmpVars();
 						break;
 					} else {
-						tmpFile.state = fREAD;
 					}
 				}
 			} else {
@@ -521,23 +522,30 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 			}
 			break;
 		case rREAD:
-			if ((cntlFlag == FALSE) && (key != 'M')) {
+			if (!((cntlFlag) && (key == 'M'))) {
 				if ((cntlFlag == TRUE) && (key == '<')) {
 					if (tmpFIndex < DISPLAYLEN) {
 						/*	ignore	*/
 					} else {
 						tmpFIndex -= DISPLAYLEN;
+						bMenuDisplayed = FALSE;
 					}
 				} else if ((cntlFlag == TRUE) && (key == '>')) {
-					if (tmpFIndex > FILEBLOCKSIZE - DISPLAYLEN) {
+					if (tmpFIndex >= FILEBLOCKSIZE - DISPLAYLEN) {
 						/*	ignore	*/
 					} else {
 						tmpFIndex += DISPLAYLEN;
+						bMenuDisplayed = FALSE;
 					}
 				}
-				DisplayUpdate((INT8U *) (tmpFile.ptr + tmpFIndex));
-				UARTSend("\r",(INT32U)1);
-				UARTSend(tmpFile.ptr + tmpFIndex, (INT32U) BUFFERLEN);
+				if (!bMenuDisplayed) {
+					DisplayUpdate((INT8U *) (tmpFile.ptr + tmpFIndex));
+					UARTSend("\r", (INT32U) 1);
+					UARTSend((INT8U *) (tmpFile.ptr + tmpFIndex),
+							(INT32U) BUFFERLEN);
+					bMenuDisplayed = TRUE;
+				} else {
+				}
 			} else {
 				readState = rSELECT;
 				InitTmpVars();

@@ -97,7 +97,7 @@ void DisplayInit(void) {
 		DisplayBuffer[i] = 0xff;
 	}
 	//	clear display
-	(void) SPISendLine(DisplayBuffer);
+	(void) SPISendLine(DisplayBuffer,4);
 	UpdateDisplay = FALSE;
 	BufferIndex = 0;
 }
@@ -129,7 +129,7 @@ void DisplayTask(void) {
 			}
 		}
 		/*	Send Braille data to display	*/
-		(void) SPISendLine(BrailleBuffer);
+		(void) SPISendLine(BrailleBuffer,4);
 	} else {
 	}
 #if defined(DB_DISP) && defined(DB_PORT)

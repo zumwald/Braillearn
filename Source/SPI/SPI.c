@@ -17,7 +17,7 @@
  ********************************************************************/
 void SPIInit(void);
 INT8U SPISendChar(INT8U data);
-INT8U SPISendLine(INT8U *data);
+INT8U SPISendLine(INT8U *data, INT8U len);
 
 /********************************************************************
  * Private Resources
@@ -93,24 +93,29 @@ INT8U SPISendChar(INT8U data) {
  * 		- public		call to SPISendChar causes block for up to
  * 						DISPLAYLEN * TIMEOUTTICK CPU ticks
  ********************************************************************/
-INT8U SPISendLine(INT8U *data) {
+INT8U SPISendLine(INT8U *data, INT8U len) {
 
 	INT8U i, result;
+	INT16U timeout = 0;
 
- 	for (i = 0; i < DISPLAYLEN; i++) {
-
-		if (*data == 0x00) {
-			return (INT8U) TRUE;
+	for (i = 0; i < len; i++) {
+		ROM_UARTCharPutNonBlocking (UART7_BASE, *data++);
+	}
+	while (!ROM_UARTCharsAvail (UART7_BASE)) {
+		if (timeout >= TIMEOUTTICKS) {
+			return FALSE;
 		} else {
-		}
-
-		result = SPISendChar(*data++);
-		if (!result) {
-			return (INT8U) FALSE;
-		} else {
+			timeout++;
 		}
 	}
-	return (INT8U) TRUE;
+	while (ROM_UARTCharsAvail (UART7_BASE)) {
+		if (data == ROM_UARTCharGetNonBlocking (UART7_BASE)) {
+			result |= TRUE;
+		} else {
+			result &= ~TRUE;
+		}
+	}
+	return (INT8U) result;
 }
 
 //*****************************************************************************

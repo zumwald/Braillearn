@@ -69,8 +69,7 @@ void InitTmpVars(void) {
 	//displayIndex = 0;
 	chatRxIndex = 0;
 	chatTxIndex = 0;
-	tmpFile.state = fUNUSED;
-	tmpFile.tableIndex = 0;
+	tmpFile = fileLookupTable[0];
 	tmpFIndex = 0;
 }
 
@@ -157,9 +156,7 @@ void CntlInit(void) {
 	chatTxIndex = 0;
 
 	FileInit((FILETABLESTRUCT *) &fileLookupTable);
-	tmpFile.state = fUNUSED;
-	tmpFile.tableIndex = 0;
-	tmpFIndex = 0;
+	tmpFile = fileLookupTable[0];
 }
 
 /********************************************************************
@@ -496,7 +493,7 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 						InitTmpVars();
 						break;
 					} else {
-
+						tmpFile.state = fREAD;
 					}
 				}
 			} else {
@@ -504,14 +501,22 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 				case '\r':
 				case '\n':
 				case ' ':
-					if (tmpFile.state != fUNUSED) {
+					if (tmpFile.name[0] != 0x00) {
 						readState = rREAD;
 					} else {
 					}
 					break;
+				case 0x00:
+					if (!bMenuDisplayed) {
+						UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
+						DisplayUpdate(tmpFile.name);
+						bMenuDisplayed = TRUE;
+					} else {
+					}
+					break;
 				default:
-					UARTSend(tmpFile.name, (INT32U) BUFFERLEN);
-					DisplayUpdate(tmpFile.name);
+					bMenuDisplayed = FALSE;
+
 				}
 			}
 			break;
@@ -531,6 +536,8 @@ void ReadState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 					}
 				}
 				DisplayUpdate((INT8U *) (tmpFile.ptr + tmpFIndex));
+				UARTSend("\r",(INT32U)1);
+				UARTSend(tmpFile.ptr + tmpFIndex, (INT32U) BUFFERLEN);
 			} else {
 				readState = rSELECT;
 				InitTmpVars();
@@ -566,7 +573,7 @@ void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 								(INT32U) DISPLAYLEN - 1);
 						//DisplayBlinkMiss();
 						DisplayUpdate(" ");
-						DisplayUpdate((INT8U *)(learnString + tmpFIndex + 1));
+						DisplayUpdate((INT8U *) (learnString + tmpFIndex + 1));
 					} else {
 						fMissed = TRUE;
 						UARTSend("\r", (INT32U) 1);

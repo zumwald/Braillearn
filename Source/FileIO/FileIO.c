@@ -50,7 +50,7 @@ INT8U FileUpdate(FILETABLESTRUCT *fileTblStruct, FILESTRUCT *data){
 		INT8U 	retval;
 
 		FlashErase((INT32U)fileTblStruct->ptr);
-		fpRet = FlashProgram((INT32U *)data, (INT32U)fileTblStruct->ptr, sizeof(data));
+		fpRet = FlashProgram((INT32U *)data, (INT32U)fileTblStruct->ptr, FILEBLOCKSIZE);
 
 		switch (fpRet){
 		case 0:

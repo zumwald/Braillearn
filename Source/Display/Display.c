@@ -81,7 +81,10 @@ void DisplayBlinkMiss(void) {
  ********************************************************************/
 void DisplayClear(void) {
 
-	DisplayBuffer[0] = 0x00;
+	INT8U i;
+	for (i = 0; i < DISPLAYLEN; i++){
+		DisplayBuffer[i] = 0xff;
+	}
 	BufferIndex = 0;
 }
 
@@ -92,11 +95,9 @@ void DisplayClear(void) {
  ********************************************************************/
 void DisplayInit(void) {
 
-	int i;
 	//	Initialize DisplayBuffer to be empty
-	for (i = 0; i < DISPLAYLEN; i++) {
-		DisplayBuffer[i] = 0xff;
-	}
+	DisplayClear();
+
 	//	clear display
 	(void) SPISendLine(DisplayBuffer, 4);
 	UpdateDisplay = FALSE;

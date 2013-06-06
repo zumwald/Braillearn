@@ -238,6 +238,7 @@ void UARTTask(void) {
 		UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
 	} else {
 	}
+	bFlag = FALSE;
 #if defined(DB_UART) && defined(DB_PORT)
 	GPIOPinWrite(DB_PORT, DB_UART, DB_UART);
 #endif

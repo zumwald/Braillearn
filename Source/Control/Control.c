@@ -573,7 +573,7 @@ void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 	if (waitFlag) {
 		if (!((cntlFlag == TRUE) && (key == 'M'))) {
 			if (key != learnString[tmpFIndex]) {
-				if (sliceCnt & 0xA00) {
+				if (sliceCnt >= ONESECOND){
 					if (fMissed == TRUE) {
 						fMissed = FALSE;
 						UARTSend("\r ", (INT32U) 2);
@@ -588,6 +588,7 @@ void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 						UARTSend(learnString + tmpFIndex, (INT32U) DISPLAYLEN);
 						DisplayUpdate((INT8U *) (learnString + tmpFIndex));
 					}
+					sliceCnt = 0;
 				} else {
 				}
 			} else {

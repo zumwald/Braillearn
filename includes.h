@@ -73,7 +73,7 @@ typedef signed long     INT32S;
 #define CRYSTAL_16MHZ (INT32U)16000000
 
 /*		SPI			*/
-#define SPIBAUD			9600
+#define SPIBAUD			115200
 #define TIMEOUTTICKS	10
 #define DISPLAYLEN		8
 

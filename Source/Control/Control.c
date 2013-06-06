@@ -378,6 +378,7 @@ void NotesState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 							break;
 						} else {
 							tmpFile.name[tmpFIndex++] = key;
+							DisplayAppendChar(key);
 							if (tmpFIndex < BUFFERLEN) {
 								break;
 							} else {

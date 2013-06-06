@@ -17,7 +17,7 @@
  ********************************************************************/
 void DisplayInit(void);
 void DisplayTask(void);
-void DisplayUpdate(INT8U data[DISPLAYLEN]);
+void DisplayUpdate(INT8U *data);
 void DisplayClear(void);
 
 /********************************************************************
@@ -32,7 +32,7 @@ INT8U BrailleBuffer[DISPLAYLEN];
  * DisplayUpdate() - Sets DisplayBuffer to the ASCII data specified
  * 		- public
  ********************************************************************/
-void DisplayUpdate(INT8U data[DISPLAYLEN]) {
+void DisplayUpdate(INT8U *data) {
 
 	INT8U i;
 	UpdateDisplay = TRUE;
@@ -52,12 +52,12 @@ void DisplayUpdate(INT8U data[DISPLAYLEN]) {
  * DisplayAppendChar() - Shifts given char into end of display
  * 		- public
  ********************************************************************/
-void DisplayAppendChar(INT8U key){
+void DisplayAppendChar(INT8U key) {
 
 	INT8U i;
 	//	Shift current buffer
-	for (i = 0; i< DISPLAYLEN - 1; i++){
-		DisplayBuffer[i] = DisplayBuffer[i+1];
+	for (i = 0; i < DISPLAYLEN - 1; i++) {
+		DisplayBuffer[i] = DisplayBuffer[i + 1];
 	}
 	//	Insert key
 	DisplayBuffer[i] = key;
@@ -70,7 +70,7 @@ void DisplayAppendChar(INT8U key){
  * 						while in "LEARN" mode.
  * 		- public
  ********************************************************************/
-void DisplayBlinkMiss(void){
+void DisplayBlinkMiss(void) {
 	DisplayBuffer[0] = 0x00;
 	UpdateDisplay = TRUE;
 }
@@ -79,7 +79,7 @@ void DisplayBlinkMiss(void){
  * DisplayClear() - Clears display.
  * 		- public
  ********************************************************************/
-void DisplayClear(void){
+void DisplayClear(void) {
 
 	DisplayBuffer[0] = 0x00;
 	BufferIndex = 0;
@@ -98,7 +98,7 @@ void DisplayInit(void) {
 		DisplayBuffer[i] = 0xff;
 	}
 	//	clear display
-	(void) SPISendLine(DisplayBuffer,4);
+	(void) SPISendLine(DisplayBuffer, 4);
 	UpdateDisplay = FALSE;
 	BufferIndex = 0;
 }
@@ -118,19 +118,20 @@ void DisplayTask(void) {
 	if (UpdateDisplay) {
 		/*	translate displaybuffer to braillebuffer	*/
 		for (i = 0; i < DISPLAYLEN; i++) {
-			if ((DisplayBuffer[i] == 0x00) || (i>BufferIndex)) {
+			if ((DisplayBuffer[i] == 0x00) || (i > BufferIndex) || (DisplayBuffer[i] == ' ')) {
 				BrailleBuffer[i] = 0xff;
 			} else {
 				for (j = 0; j < 256; j++) {
 					if (DisplayBuffer[i] == UBrailleLookup[j]) {
 						BrailleBuffer[i] = (INT8U) ~j;
+						break;
 					} else {
 					}
 				}
 			}
 		}
 		/*	Send Braille data to display	*/
-		(void) SPISendLine(BrailleBuffer,4);
+		(void) SPISendLine(BrailleBuffer, 4);
 	} else {
 	}
 #if defined(DB_DISP) && defined(DB_PORT)

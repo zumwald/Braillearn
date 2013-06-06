@@ -579,9 +579,9 @@ void LearnState(INT8U key, INT8U cntlFlag, INT8U error, INT16U rawKey) {
 						UARTSend("\r ", (INT32U) 2);
 						UARTSend(learnString + tmpFIndex + 1,
 								(INT32U) DISPLAYLEN - 1);
-						//DisplayBlinkMiss();
-						DisplayUpdate(" ");
-						DisplayUpdate((INT8U *) (learnString + tmpFIndex + 1));
+						DisplayBlinkMiss();
+						//DisplayUpdate(" ");
+						//DisplayUpdate((INT8U *) (learnString + tmpFIndex + 1));
 					} else {
 						fMissed = TRUE;
 						UARTSend("\r", (INT32U) 1);

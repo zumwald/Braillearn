@@ -71,7 +71,8 @@ void DisplayAppendChar(INT8U key){
  * 		- public
  ********************************************************************/
 void DisplayBlinkMiss(void){
-	//TODO	DisplayBlinkMiss()
+	DisplayBuffer[0] = 0x00;
+	UpdateDisplay = TRUE;
 }
 
 /********************************************************************

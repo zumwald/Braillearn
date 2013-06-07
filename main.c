@@ -51,15 +51,15 @@ int main(void) {
 	IntEnable(INT_TIMER0A);		// Enable timer interrupt
 	TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-	/*	Enable Master Interrupts	*/
-	IntMasterEnable();
-
-	/*	Initialize Modules	*/
+/*	Initialize Modules	*/
 	KeyInit();
 	CntlInit();
 	UARTInit();
 	SPIInit();
 	DisplayInit();
+
+/*	Enable Master Interrupts	*/
+	IntMasterEnable();
 
 	/*	Send welcome message	*/
 	UART_Welcome();
